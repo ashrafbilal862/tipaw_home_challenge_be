@@ -17,6 +17,7 @@ model User {
   lastName String
   email String @unique
   password String 
+  phoneNumber String 
   isEmailVerified Boolean? @default(false)
   createdAt DateTime @default(now())
   Tokens Token[]

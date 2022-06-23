@@ -10,6 +10,7 @@ const authMutations: IField = {
       firstName: { type: GraphQLString },
       lastName: { type: GraphQLString },
       email: { type: GraphQLString },
+      phoneNumber: { type: GraphQLString },
       password: { type: GraphQLString },
       acceptedTerms: { type: GraphQLBoolean },
     },

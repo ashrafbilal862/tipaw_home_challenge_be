@@ -12,6 +12,7 @@ const UserType = new GraphQLObjectType({
     id: { type: GraphQLString },
     firstName: { type: GraphQLString },
     lastName: { type: GraphQLString },
+    phoneNumber: { type: GraphQLString },
     email: { type: GraphQLString },
     createdAt: { type: GraphQLString },
     isEmailVerified: { type: GraphQLBoolean },
@@ -31,6 +32,7 @@ const UserUpdateBodyInput = new GraphQLInputObjectType({
   fields: () => ({
     firstName: { type: GraphQLString },
     lastName: { type: GraphQLString },
+    phoneNumber: { type: GraphQLString },
   }),
 });
 
