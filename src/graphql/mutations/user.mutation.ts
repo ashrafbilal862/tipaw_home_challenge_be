@@ -12,6 +12,13 @@ const userMutations: IField = {
     },
     resolve: (...rest) => userController.updateUser(...rest),
   },
+  deleteUser: {
+    type: UserType.UserType,
+    args: {
+      userId: { type: GraphQLString },
+    },
+    resolve: (...rest) => userController.deleteUser(...rest),
+  },
 };
 
 export default userMutations;

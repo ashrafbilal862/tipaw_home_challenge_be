@@ -42,7 +42,6 @@ exports.default = {
     env: envVars.NODE_ENV,
     port: envVars.PORT,
     origin: envVars.ORIGIN,
-    databaseConnectionString: envVars.DB_CONNECTION_STRING,
     jwt: {
         secret: envVars.JWT_SECRET,
         accessExpirationMinutes: envVars.JWT_ACCESS_EXPIRATION_MINUTES,

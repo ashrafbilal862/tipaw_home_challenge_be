@@ -4,9 +4,11 @@ const tslib_1 = require("tslib");
 const config_1 = tslib_1.__importDefault(require("./config/config"));
 const logger_1 = tslib_1.__importDefault(require("./config/logger"));
 const app_1 = tslib_1.__importDefault(require("./app"));
+const prisma_1 = require("./config/prisma");
 let server;
 server = app_1.default.listen(config_1.default.port, () => {
     logger_1.default.info(`Listening to port ${config_1.default.port}`);
+    (0, prisma_1.connect)();
 });
 const exitHandler = () => {
     if (server) {

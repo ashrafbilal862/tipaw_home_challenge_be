@@ -3,6 +3,7 @@ import {
   GraphQLString,
   GraphQLBoolean,
   GraphQLInputObjectType,
+  GraphQLInt,
 } from "graphql";
 
 const UserType = new GraphQLObjectType({
@@ -17,6 +18,14 @@ const UserType = new GraphQLObjectType({
   }),
 });
 
+const QueryUsersFilterType = new GraphQLInputObjectType({
+  name: "QueryUsersFilter",
+  fields: () => ({
+    page: { type: GraphQLInt },
+    limit: { type: GraphQLInt },
+  }),
+});
+
 const UserUpdateBodyInput = new GraphQLInputObjectType({
   name: "UserUpdateBody",
   fields: () => ({
@@ -25,4 +34,4 @@ const UserUpdateBodyInput = new GraphQLInputObjectType({
   }),
 });
 
-export default { UserType, UserUpdateBodyInput };
+export default { UserType, UserUpdateBodyInput, QueryUsersFilterType };

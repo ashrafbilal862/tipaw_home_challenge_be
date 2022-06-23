@@ -6,13 +6,17 @@ const createUser = async (_parent, args, _context, _info) => {
 };
 
 const getUser = async (_parent, args, _context, _info) => {
-  const user = await userService.getUserById(args.userId);
-  return user;
+  try {
+    const user = await userService.getUserById(args.userId);
+    return user;
+  } catch (err) {
+    throw ApiResponse(err);
+  }
 };
 
-const getUsers = async (_parent, _args, _req, _gql) => {
+const getUsers = async (_parent, args, _req, _gql) => {
   try {
-    const users = await userService.queryUsers({}, {});
+    const users = await userService.queryUsers(args.filters);
     return users;
   } catch (err: any) {
     throw ApiResponse(err);
@@ -20,8 +24,21 @@ const getUsers = async (_parent, _args, _req, _gql) => {
 };
 
 const updateUser = async (_parent, args, _context, _info) => {
-  const user = await userService.updateUserById(args.userId, args.updateBody);
-  return user;
+  try {
+    const user = await userService.updateUserById(args.userId, args.updateBody);
+    return user;
+  } catch (err) {
+    throw ApiResponse(err);
+  }
+};
+
+const deleteUser = async (_parent, args, _context, _info) => {
+  try {
+    const user = await userService.deleteUserById(args.userId);
+    return user;
+  } catch (err) {
+    throw ApiResponse(err);
+  }
 };
 
 export default {
@@ -29,4 +46,5 @@ export default {
   getUser,
   getUsers,
   updateUser,
+  deleteUser,
 };

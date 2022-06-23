@@ -27,8 +27,14 @@ const createUser = async (userBody) => {
 /**
  * Query for users
  */
-const queryUsers = async (_filter, _options) => {
-  const users = await prisma.user.findMany();
+const queryUsers = async (filter) => {
+  const limit = filter.limit || 10;
+  const skip = (filter.page - 1) * limit || 0;
+
+  const users = await prisma.user.findMany({
+    skip,
+    take: limit,
+  });
   return users;
 };
 
@@ -85,8 +91,19 @@ const updateUserById = async (userId, updateBody) => {
     },
     data: updateBody,
   });
-  // await user.save();
   return updatedUser;
+};
+
+/**
+ * Delete user by id
+ */
+const deleteUserById = async (userId) => {
+  const result = await prisma.user.delete({
+    where: {
+      id: userId,
+    },
+  });
+  return result;
 };
 
 export default {
@@ -96,4 +113,5 @@ export default {
   getUserById,
   getUserByEmail,
   updateUserById,
+  deleteUserById,
 };

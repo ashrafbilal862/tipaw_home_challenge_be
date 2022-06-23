@@ -5,7 +5,6 @@ import { authService, userService, tokenService } from "../services";
 const register = async (_parent, args, _context, _info) => {
   const user = await userService.createUser(args);
   const tokens = await tokenService.generateAuthTokens(user);
-  console.log(user, tokens);
   return { user, tokens };
 };
 
@@ -18,17 +17,20 @@ const login = async (_parent, args, _context, _info) => {
 
 const logout = async (_parent, args, _context, _info) => {
   await authService.logout(args.refreshToken);
-  res.status(httpStatus.NO_CONTENT).send();
+  return {
+    status: httpStatus.OK,
+    message: "Logged out",
+  };
 };
 
-const refreshTokens = async (_parent, args, _context, _info) => {
+const refreshToken = async (_parent, args, _context, _info) => {
   const { user, tokens } = await authService.refreshAuth(args.refreshToken);
-  res.status(httpStatus.OK).send({ user, tokens });
+  return { user, tokens };
 };
 
 export default {
   register,
   login,
   logout,
-  refreshTokens,
+  refreshToken,
 };

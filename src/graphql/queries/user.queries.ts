@@ -5,9 +5,11 @@ import { userController } from "../../controllers";
 type IField = Record<string, GraphQLFieldConfig<any, any>>;
 
 const userQueries: IField = {
-  getAllUsers: {
+  queryUsers: {
     type: GraphQLList(UserType.UserType),
-    args: {},
+    args: {
+      filters: { type: UserType.QueryUsersFilterType },
+    },
     resolve: (...rest) => userController.getUsers(...rest),
   },
   getUser: {

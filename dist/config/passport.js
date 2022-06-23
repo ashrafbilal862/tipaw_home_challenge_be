@@ -1,20 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
-const config = require('./config');
-const { tokenTypes } = require('./tokens');
-const { User } = require('../models');
+const passport_jwt_1 = require("passport-jwt");
+const _1 = require("./");
+const _2 = require("./");
+const services_1 = require("../services");
 const jwtOptions = {
-    secretOrKey: config.jwt.secret,
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: _1.config.jwt.secret,
+    jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
 };
 const jwtVerify = (payload, done) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (payload.type !== tokenTypes.ACCESS) {
-            throw new Error('Invalid token type');
+        if (payload.type !== _2.token.tokenTypes.ACCESS) {
+            throw new Error("Invalid token type");
         }
-        const user = yield User.findById(payload.sub);
+        const user = yield services_1.userService.getUserById(payload.sub);
         if (!user) {
             return done(null, false);
         }
@@ -24,7 +24,7 @@ const jwtVerify = (payload, done) => tslib_1.__awaiter(void 0, void 0, void 0, f
         done(error, false);
     }
 });
-const jwtStrategy = new JwtStrategy(jwtOptions, jwtVerify);
+const jwtStrategy = new passport_jwt_1.Strategy(jwtOptions, jwtVerify);
 exports.default = {
     jwtStrategy,
 };

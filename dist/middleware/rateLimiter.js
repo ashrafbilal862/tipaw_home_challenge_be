@@ -7,5 +7,6 @@ const authLimiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000,
     max: 20,
     skipSuccessfulRequests: true,
+    message: "Calm down",
 });
 exports.authLimiter = authLimiter;

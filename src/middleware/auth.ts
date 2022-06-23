@@ -10,7 +10,6 @@ const verifySecurityHeader = (header) => {
     const accessToken = header.split(" ")[1];
 
     const result = jwt.verify(accessToken, config.jwt.secret);
-    console.log(result);
     return !!result;
   } catch (error) {
     throw new ApiError(httpStatus.UNAUTHORIZED, "Please authenticate");

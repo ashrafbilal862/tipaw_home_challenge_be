@@ -1,55 +1,74 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
+// @ts-nocheck
 const express_1 = tslib_1.__importDefault(require("express"));
-const helmet_1 = tslib_1.__importDefault(require("helmet"));
-const express_mongo_sanitize_1 = tslib_1.__importDefault(require("express-mongo-sanitize"));
 const compression_1 = tslib_1.__importDefault(require("compression"));
 const http_status_1 = tslib_1.__importDefault(require("http-status"));
 const cors_1 = tslib_1.__importDefault(require("cors"));
-const ApiError_1 = tslib_1.__importDefault(require("./utils/ApiError"));
-const config_1 = tslib_1.__importDefault(require("./config/config"));
-const cors_2 = tslib_1.__importDefault(require("./config/cors"));
-const morgan_1 = tslib_1.__importDefault(require("./config/morgan"));
+const passport_1 = tslib_1.__importDefault(require("passport"));
+const utils_1 = require("./utils");
+const config_1 = require("./config");
 const middleware_1 = require("./middleware");
 const error_1 = require("./middleware/error");
-const index_1 = tslib_1.__importDefault(require("./routes/api/index"));
+const express_graphql_1 = require("express-graphql");
+// import routes from "./routes/api/index";
+const graphql_1 = tslib_1.__importDefault(require("./graphql"));
+const validations_1 = require("./graphql/validations");
 const app = (0, express_1.default)();
-if (config_1.default.env !== "test") {
-    app.use(morgan_1.default.successHandler);
-    app.use(morgan_1.default.errorHandler);
+if (config_1.config.env !== "test") {
+    app.use(config_1.morgan.successHandler);
+    app.use(config_1.morgan.errorHandler);
 }
 // set security HTTP headers
-app.use((0, helmet_1.default)());
+// app.use(helmet()); // NOTE graphql gives error
 // parse json request body
 app.use(express_1.default.json());
 // parse urlencoded request body
 app.use(express_1.default.urlencoded({ extended: true }));
-// sanitize request data
-// app.use(xss()); FIXME xss-clean doesn't provide types
-app.use((0, express_mongo_sanitize_1.default)());
 // gzip compression
 app.use((0, compression_1.default)());
 // enable cors
-app.use((0, cors_1.default)(cors_2.default));
+app.use((0, cors_1.default)(config_1.corsOptions));
 // app.options('*', cors);
-// limit repeated failed requests to auth endpoints
-if (config_1.default.env === "production") {
-    app.use("/v1/auth", middleware_1.authLimiter);
-}
-// // add io
-// app.use('/', (req: RequestWithSocket , _res, next) => {
-//     req.io = io;
+// jwt authentication
+app.use(passport_1.default.initialize());
+passport_1.default.use("jwt", config_1.jwtPassport.jwtStrategy);
+// limit repeated failed requests to auth operations
+// if (config.env === "production") {
+//   app.use((req, res, next) => {
+//     if (req.body.operationName === "auth") {
+//       console.log("auth");
+//       authLimiter(req, res, next);
+//     }
 //     next();
-// });
-// //
-// app.use(fileUpload());
-// app.use("/uploads", express.static("src/uploads"));
+//   });
+// }
+app.use("/graphql", middleware_1.authLimiter);
+app.use(middleware_1.auth);
+app.use("/graphql", (0, express_graphql_1.graphqlHTTP)({
+    schema: graphql_1.default,
+    validationRules: [validations_1.DisallowNoOperationName],
+    // async customExecuteFn(args) {
+    //   const result = await execute(args);
+    //   if (args.operationName === "IntrospectionQuery") return result;
+    //   const operationResult = result.data[args.operationName];
+    //   if (!operationResult || operationResult.status.code >= 400) {
+    //     throw new GraphQLError(
+    //       operationResult.status.message || "Something went wrong"
+    //     );
+    //   }
+    //   return result;
+    // },
+}));
 // v1 api routes
-app.use("/api", index_1.default);
+// app.use("/api", routes);
 // send back a 404 error for any unknown api request
-app.use((_req, _res, next) => {
-    next(new ApiError_1.default(http_status_1.default.NOT_FOUND, "api Not found"));
+app.use((req, _res, next) => {
+    if (req.url !== "/graphql") {
+        next(new utils_1.ApiError(http_status_1.default.NOT_FOUND, "api Not found"));
+    }
+    next();
 });
 // convert error to ApiError, if needed
 app.use(error_1.errorConverter);

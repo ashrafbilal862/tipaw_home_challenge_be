@@ -33,9 +33,18 @@ const RegisterType = new GraphQLObjectType({
   }),
 });
 
+const RefreshTokenType = new GraphQLObjectType({
+  name: "RefreshToken",
+  fields: () => ({
+    user: { type: UserType.UserType },
+    tokens: { type: TokensType },
+  }),
+});
+
 export default {
   TokenType,
   TokensType,
   LoginType,
   RegisterType,
+  RefreshTokenType,
 };

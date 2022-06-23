@@ -1,29 +1,33 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const passport_1 = tslib_1.__importDefault(require("passport"));
+const utils_1 = require("../utils");
 const http_status_1 = tslib_1.__importDefault(require("http-status"));
-const ApiError_1 = tslib_1.__importDefault(require("../utils/ApiError"));
-const roles_1 = require("../config/roles");
-const verifyCallback = (req, resolve, reject, requiredRights) => (err, user, info) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-    if (err || info || !user) {
-        return reject(new ApiError_1.default(http_status_1.default.UNAUTHORIZED, 'Please authenticate'));
+const jsonwebtoken_1 = tslib_1.__importDefault(require("jsonwebtoken"));
+const config_1 = require("../config");
+const AuthRoutes = ["login", "register", "IntrospectionQuery"];
+const verifySecurityHeader = (header) => {
+    try {
+        const accessToken = header.split(" ")[1];
+        const result = jsonwebtoken_1.default.verify(accessToken, config_1.config.jwt.secret);
+        return !!result;
     }
-    req.user = user;
-    if (requiredRights.length) {
-        const userRights = roles_1.roleRights.get(user.role);
-        const hasRequiredRights = requiredRights.every((requiredRight) => userRights.includes(requiredRight));
-        if (!hasRequiredRights && req.params.userId !== user.id) {
-            return reject(new ApiError_1.default(http_status_1.default.FORBIDDEN, 'Forbidden'));
-        }
+    catch (error) {
+        throw new utils_1.ApiError(http_status_1.default.UNAUTHORIZED, "Please authenticate");
     }
-    resolve();
-});
-const auth = (...requiredRights) => (req, res, next) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-    return new Promise((resolve, reject) => {
-        passport_1.default.authenticate('jwt', { session: false }, verifyCallback(req, resolve, reject, requiredRights))(req, res, next);
-    })
-        .then(() => next())
-        .catch((err) => next(err));
-});
+};
+const auth = (req, _res, next) => {
+    const operationName = req.body.operationName;
+    if (AuthRoutes.includes(operationName)) {
+        next();
+        return;
+    }
+    const isVerified = verifySecurityHeader(req.headers.authorization);
+    if (isVerified) {
+        next();
+    }
+    else {
+        throw new utils_1.ApiError(http_status_1.default.UNAUTHORIZED, "Please authenticate");
+    }
+};
 exports.default = auth;

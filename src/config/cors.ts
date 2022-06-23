@@ -1,5 +1,5 @@
 import { CorsOptions } from "cors";
-// http://larouemusicale.com
+
 const options: CorsOptions = {
   allowedHeaders: [
     "Origin",

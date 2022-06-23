@@ -40,7 +40,7 @@ const refreshAuth = async (refreshToken) => {
       refreshToken,
       token.tokenTypes.REFRESH
     );
-    console.log("refreshTokenDoc", refreshTokenDoc);
+
     const user = await userService.getUserById(refreshTokenDoc.userId);
     if (!user) {
       throw new Error();
@@ -48,13 +48,12 @@ const refreshAuth = async (refreshToken) => {
 
     await tokenService.deleteTokenById(refreshTokenDoc.id);
     const tokens = await tokenService.generateAuthTokens(user);
-    console.log(tokens);
+
     return {
       user,
       tokens,
     };
   } catch (error) {
-    console.log(error);
     throw new ApiError(
       httpStatus.UNAUTHORIZED,
       "Authentication failed, please login again"
